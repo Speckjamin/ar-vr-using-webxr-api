@@ -1,6 +1,27 @@
 main();
 
 function main() {
+  let angleX = 0;
+
+  let angleY = 0;
+
+  let angleZ = 0;
+
+  function checkKey(event) {
+
+      console.log(event.keyCode);
+
+     switch (event.keyCode) {
+
+          case 88 /*"KeyX"*/: angleX += 0.1; break;
+
+          case 89 /*"KeyY"*/: angleY += 0.1; break;
+
+          case 90 /*"KeyZ"*/: angleZ += 0.1; break;
+
+      }
+
+  }
   /*========== Create a WebGL Context ==========*/
   const canvas = document.querySelector("#c");
   const gl = canvas.getContext('webgl');
@@ -126,7 +147,7 @@ function main() {
   
   let cubeRotation = 0.0;
   let then = 0;
-
+  
   /*========== Connect the attribute with the vertex shader ==========*/
   function render(now){       
     now *= 0.001;
@@ -147,7 +168,7 @@ function main() {
     const modelMatrixLocation = gl.getUniformLocation(program, 'uModelViewMatrix');
     const projMatrixLocation = gl.getUniformLocation(program, 'uProjectionMatrix');
     
-    const fieldOfView = 45 * Math.PI / 180;   // in radians
+    const fieldOfView = 90 * Math.PI / 180;   // in radians
     const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
     const zNear = 0.1;
     const zFar = 100.0;
@@ -166,7 +187,7 @@ function main() {
     mat4.translate(modelViewMatrix,     // destination matrix
       modelViewMatrix,     // matrix to translate
       [-0.0, 0.0, -2.0]);  // amount to translate
-    mat4.rotate(modelViewMatrix,  // destination matrix
+   /* mat4.rotate(modelViewMatrix,  // destination matrix
           modelViewMatrix,  // matrix to rotate
           cubeRotation,     // amount to rotate in radians
           [0, 0, 1]);       // axis to rotate around (Z)
@@ -174,10 +195,18 @@ function main() {
           modelViewMatrix,  // matrix to rotate
           cubeRotation,// amount to rotate in radians
           [0, 1, 0]);       // axis to rotate around (X)
-    
+    */
+    mat4.rotate(modelViewMatrix, modelViewMatrix, angleX, [1, 0, 0]);      
+
+    mat4.rotate(modelViewMatrix, modelViewMatrix, angleY, [0, 1, 0]);      
+      
+    mat4.rotate(modelViewMatrix, modelViewMatrix, angleZ, [0, 0, 1]);
+
     gl.uniformMatrix4fv(projMatrixLocation, false, projectionMatrix);
     gl.uniformMatrix4fv(modelMatrixLocation, false, modelViewMatrix);
             
+
+  
     /*========== Drawing ========== */
     gl.clearColor(1, 1, 1, 1);
     
@@ -195,4 +224,5 @@ function main() {
     requestAnimationFrame(render);
   }
   requestAnimationFrame(render);
+  window.onkeydown = checkKey;
 }

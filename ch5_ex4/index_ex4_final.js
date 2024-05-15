@@ -2,7 +2,21 @@ import * as THREE from './modules/three.module.js';
 
 main();
 
+var controls = new function () {
+    this.rotationSpeedCube = 0.02;
+    this.rotationSpeedSphere = 0.03;
+};
+
+var gui = new dat.GUI();
+gui.add(controls, 'rotationSpeedCube', 0, 0.5);
+gui.add(controls, 'rotationSpeedSphere', 0, 0.5);
+
+var stats = initStats();
+
+var trackballControls = initTrackballControls(camera, renderer);
+
 function main() {
+    
     // create context
     const canvas = document.querySelector("#c");
     const gl = new THREE.WebGLRenderer({
@@ -117,8 +131,15 @@ function main() {
     const ambientLight = new THREE.AmbientLight(ambientColor, ambientIntensity);
     scene.add(ambientLight);
 
+        // add spotlight for the shadows
+        var spotLight = new THREE.SpotLight(0xffffff);
+        spotLight.position.set(-10, 20, -5);
+        spotLight.castShadow = true;
+        scene.add(spotLight);
+
     // DRAW
     function draw(time){
+        
         time *= 0.001;
 
         if (resizeGLToDisplaySize(gl)) {
@@ -126,23 +147,32 @@ function main() {
             camera.aspect = canvas.clientWidth / canvas.clientHeight;
             camera.updateProjectionMatrix();
         }
-        
-        cube.rotation.x += 0.01;
-        cube.rotation.y += 0.01;
-        cube.rotation.z += 0.01;
 
-        sphere.rotation.x += 0.01;
-        sphere.rotation.y += 0.01;
-        sphere.rotation.y += 0.01;
+
+        cube.rotation.x += controls.rotationSpeedCube;
+        cube.rotation.y += controls.rotationSpeedCube;
+        cube.rotation.z += controls.rotationSpeedCube;
+
+        sphere.rotation.x += controls.rotationSpeedSphere;
+        sphere.rotation.y += controls.rotationSpeedSphere;
+        sphere.rotation.z += controls.rotationSpeedSphere;
 
         light.position.x = 20*Math.cos(time);
         light.position.y = 20*Math.sin(time);
+        stats.update();
         gl.render(scene, camera);
         requestAnimationFrame(draw);
-    }
 
+        trackballControls.update(clock.getDelta());
+        //stats.update();
+
+    }
+    
+
+    
     requestAnimationFrame(draw);
 }
+
 
 // UPDATE RESIZE
 function resizeGLToDisplaySize(gl) {
