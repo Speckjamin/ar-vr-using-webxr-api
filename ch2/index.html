@@ -16,7 +16,6 @@
     <canvas id="canvas" width="1200" height="600"></canvas>
     <script id="vertex-data" type="not-javascript">
         attribute vec4 vertex_points;
-
         void main() {
             gl_Position = vertex_points;
         }
@@ -25,7 +24,7 @@
         precision mediump float;
 
         void main() {
-            gl_FragColor = vec4(1, 0, 0, 1.0);
+            gl_FragColor = vec4(255, 0, 0, 1.0);
         }
     </script>
 </body>
@@ -47,8 +46,9 @@
     const coordinates = [
     -0.7, 0.7,
      0.7, 0.7,
-    -0.7, 0,
-     0.7, 0,
+     0.7, -0,
+     -0.7, 0,
+    // -0.7, -0.7,
     ];        
 
     // Create an empty buffer object to store the vertex points
@@ -72,6 +72,9 @@
     const vertexShader = gl.createShader(gl.VERTEX_SHADER);
     gl.shaderSource(vertexShader, vsSource);
     gl.compileShader(vertexShader);
+    if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
+      console.error(gl.getShaderInfoLog(vertexShader));
+    }
     const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
     gl.shaderSource(fragmentShader, fsSource);
     gl.compileShader(fragmentShader);
@@ -101,7 +104,7 @@
     /*==================== Drawing ======================== */
 
     // Clear the canvas
-    gl.clearColor(0, 0, 0, 0);
+    gl.clearColor(0, 200, 0, 1.0);
 
     // Clear the GL context's color buffer for a fresh paint
     gl.clear(gl.COLOR_BUFFER_BIT);
