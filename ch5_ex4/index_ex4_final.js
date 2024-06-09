@@ -1,4 +1,5 @@
-import * as THREE from './modules/three.module.js';
+//import * as THREE from './modules/three.module.js';
+
 
 main();
 
@@ -13,12 +14,14 @@ gui.add(controls, 'rotationSpeedSphere', 0, 0.5);
 
 var stats = initStats();
 
-var trackballControls = initTrackballControls(camera, renderer);
-
 function main() {
-    
     // create context
     const canvas = document.querySelector("#c");
+    if (!canvas) {
+        console.error('Canvas element not found!');
+        return;
+    }
+
     const gl = new THREE.WebGLRenderer({
         canvas,
         antialias: true
@@ -37,38 +40,26 @@ function main() {
     );
     camera.position.set(0, 8, 30);
 
+    var trackballControls = initTrackballControls(camera, gl);
+
     // create the scene
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0.3, 0.5, 0.8);
-    const fog = new THREE.Fog("grey", 1,90);
+    const fog = new THREE.Fog("grey", 1, 90);
     scene.fog = fog;
 
     // GEOMETRY
-    // create the cube
     const cubeSize = 4;
-    const cubeGeometry = new THREE.BoxGeometry(
-        cubeSize,
-        cubeSize,
-        cubeSize
-    );  
+    const cubeGeometry = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
 
-    // Create the Sphere
     const sphereRadius = 3;
     const sphereWidthSegments = 32;
     const sphereHeightSegments = 16;
-    const sphereGeometry = new THREE.SphereGeometry(
-        sphereRadius,
-        sphereWidthSegments,
-        sphereHeightSegments
-    );
+    const sphereGeometry = new THREE.SphereGeometry(sphereRadius, sphereWidthSegments, sphereHeightSegments);
 
-    // Create the upright plane
     const planeWidth = 256;
-    const planeHeight =  128;
-    const planeGeometry = new THREE.PlaneGeometry(
-        planeWidth,
-        planeHeight
-    );
+    const planeHeight = 128;
+    const planeGeometry = new THREE.PlaneGeometry(planeWidth, planeHeight);
 
     // MATERIALS
     const textureLoader = new THREE.TextureLoader();
@@ -85,12 +76,10 @@ function main() {
         normalMap: sphereNormalMap
     });
 
-    
     const planeTextureMap = textureLoader.load('textures/pebbles.jpg');
     planeTextureMap.wrapS = THREE.RepeatWrapping;
     planeTextureMap.wrapT = THREE.RepeatWrapping;
     planeTextureMap.repeat.set(16, 16);
-    //planeTextureMap.magFilter = THREE.NearestFilter;
     planeTextureMap.minFilter = THREE.NearestFilter;
     planeTextureMap.anisotropy = gl.getMaxAnisotropy();
     const planeNorm = textureLoader.load('textures/pebbles_normal.png');
@@ -101,7 +90,7 @@ function main() {
     const planeMaterial = new THREE.MeshStandardMaterial({
         map: planeTextureMap,
         side: THREE.DoubleSide,
-        normalMap: planeNorm 
+        normalMap: planeNorm
     });
 
     // MESHES
@@ -131,15 +120,14 @@ function main() {
     const ambientLight = new THREE.AmbientLight(ambientColor, ambientIntensity);
     scene.add(ambientLight);
 
-        // add spotlight for the shadows
-        var spotLight = new THREE.SpotLight(0xffffff);
-        spotLight.position.set(-10, 20, -5);
-        spotLight.castShadow = true;
-        scene.add(spotLight);
+    var spotLight = new THREE.SpotLight(0xffffff);
+    spotLight.position.set(-10, 20, -5);
+    spotLight.castShadow = true;
+    scene.add(spotLight);
 
+    var clock = new THREE.Clock();
     // DRAW
-    function draw(time){
-        
+    function draw(time) {
         time *= 0.001;
 
         if (resizeGLToDisplaySize(gl)) {
@@ -147,7 +135,6 @@ function main() {
             camera.aspect = canvas.clientWidth / canvas.clientHeight;
             camera.updateProjectionMatrix();
         }
-
 
         cube.rotation.x += controls.rotationSpeedCube;
         cube.rotation.y += controls.rotationSpeedCube;
@@ -157,22 +144,17 @@ function main() {
         sphere.rotation.y += controls.rotationSpeedSphere;
         sphere.rotation.z += controls.rotationSpeedSphere;
 
-        light.position.x = 20*Math.cos(time);
-        light.position.y = 20*Math.sin(time);
+        light.position.x = 20 * Math.cos(time);
+        light.position.y = 20 * Math.sin(time);
         stats.update();
         gl.render(scene, camera);
         requestAnimationFrame(draw);
 
         trackballControls.update(clock.getDelta());
-        //stats.update();
-
     }
-    
 
-    
     requestAnimationFrame(draw);
 }
-
 
 // UPDATE RESIZE
 function resizeGLToDisplaySize(gl) {
