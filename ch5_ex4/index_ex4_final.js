@@ -125,6 +125,36 @@ function main() {
     spotLight.castShadow = true;
     scene.add(spotLight);
 
+    var texture = textureLoader.load('textures/stone.jpg');
+          texture.wrapS = THREE.RepeatWrapping;
+          texture.wrapT = THREE.RepeatWrapping;
+
+          var loader = new THREE.OBJLoader();
+        
+          loader.load('objects/teapot.obj',
+                function(mesh) {
+                      var material = new THREE.MeshPhongMaterial({map:texture});
+               
+                      mesh.children.forEach(function(child) {
+                      child.material = material;
+                      child.castShadow = true;
+                      });
+
+                     mesh.position.set(-15, 2, 0);
+                     mesh.rotation.set(-Math.PI / 2, 0, 0);
+                     mesh.scale.set(0.005, 0.005, 0.005);
+                
+                    scene.add(mesh);
+               },
+               function ( xhr ) {
+                    console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+               },
+              function ( error ) {
+                    console.log(error);
+                   console.log( 'An error happened' );
+              }
+        );
+
     var clock = new THREE.Clock();
     // DRAW
     function draw(time) {
